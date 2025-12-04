@@ -362,9 +362,9 @@ func main() {
 	fmt.Printf("└─────────────────────────────┴─────────────────────────────┘\n")
 
 	// Print hourly forecast
-	fmt.Println("\n┌─────────────────────────────────────────── Hourly Forecast ───────────────────────────────────────────────┐")
-	fmt.Println("│ Time  │ Temp  │ Feels like │ Wind      │ Rain   │ Humidity │ Pressure │ Visibility │ Condition        │")
-	fmt.Println("├───────┼───────┼────────────┼───────────┼────────┼──────────┼──────────┼────────────┼──────────────────┤")
+	fmt.Println("\n┌────────────────────────────────────────────── Hourly Forecast ──────────────────────────────────────────┐")
+	fmt.Println("│ Time  │  Temp │ Feels like │   Wind     │  Rain  │ Humidity │ Pressure │ Visibility │ Condition         │")
+	fmt.Println("├───────┼───────┼────────────┼────────────┼────────┼──────────┼──────────┼────────────┼───────────────────┤")
 
 	// Show next 12 hours
 	for i := 0; i < 12 && i < len(data.TimeSeries); i++ {
@@ -388,66 +388,87 @@ func main() {
 		}
 
 		// Detailed condition text with descriptions
+		// Note: Each emoji takes 2 visual columns, so padding accounts for visual width = 18 columns
 		condText := map[string]string{
-			"clear_sky":           "☀️  Clear sky",
-			"nearly_clear_sky":    "🌤️  Nearly clear",
+			"clear_sky":           "☀️  Clear sky     ",
+			"nearly_clear_sky":    "🌤️  Nearly clear  ",
 			"variable_cloudiness": "⛅ Variable clouds",
-			"halfclear_sky":       "⛅ Half clear",
-			"cloudy_sky":          "☁️  Cloudy",
-			"overcast":            "☁️  Overcast",
-			"fog":                 "🌫️  Fog",
-			"rain_showers":        "🌦️  Rain showers",
-			"thunderstorm":        "⛈️  Thunderstorm",
-			"sleet_showers":       "🌨️  Sleet showers",
-			"snow_showers":        "🌨️  Snow showers",
-			"rain":                "🌧️  Rain",
-			"thunder":             "⛈️  Thunder",
-			"sleet":               "🌨️  Sleet",
-			"snowfall":            "❄️  Snowfall",
+			"halfclear_sky":       "⛅ Half clear    ",
+			"cloudy_sky":          "☁️  Cloudy        ",
+			"overcast":            "☁️  Overcast      ",
+			"fog":                 "🌫️  Fog           ",
+			"rain_showers":        "🌦️  Rain showers  ",
+			"thunderstorm":        "⛈️  Thunderstorm  ",
+			"sleet_showers":       "🌨️  Sleet showers ",
+			"snow_showers":        "🌨️  Snow showers  ",
+			"rain":                "🌧️  Rain          ",
+			"thunder":             "⛈️  Thunder       ",
+			"sleet":               "🌨️  Sleet         ",
+			"snowfall":            "❄️  Snowfall      ",
 		}
 
-		tempStr := "N/A  "
+		// Fixed column widths (characters between pipes, excluding the pipes themselves)
+		const (
+			timeWidth       = 5
+			tempWidth       = 5
+			feelsLikeWidth  = 10
+			windWidth       = 10
+			rainWidth       = 6
+			humidityWidth   = 8
+			pressureWidth   = 8
+			visibilityWidth = 10
+			conditionWidth  = 18
+		)
+
+		// Format each field to exact width
+		tempStr := "N/A"
 		if temp != nil {
-			tempStr = fmt.Sprintf("%4.1f°", *temp)
+			tempStr = fmt.Sprintf("%.1f°", *temp)
 		}
 
-		// Get feels like temperature
-		feelsLikeStr := "N/A  "
+		feelsLikeStr := "N/A"
 		if temp != nil && wind != nil && humidity != nil {
 			feelsLike := calculateApparentTemp(*temp, *wind, *humidity)
-			feelsLikeStr = fmt.Sprintf("%7.1f°", feelsLike)
+			feelsLikeStr = fmt.Sprintf("%.1f°", feelsLike)
 		}
 
-		// Get wind direction
-		windStr := "N/A      "
+		windStr := "N/A"
 		if wind != nil && windDir != nil {
-			windStr = fmt.Sprintf("%4.1fm/s %s", *wind, getWindDirection(*windDir))
+			windStr = fmt.Sprintf("%.1fm/s %s", *wind, getWindDirection(*windDir))
 		} else if wind != nil {
-			windStr = fmt.Sprintf("%4.1fm/s  ", *wind)
+			windStr = fmt.Sprintf("%.1fm/s", *wind)
 		}
 
-		rainStr := "N/A   "
+		rainStr := "N/A"
 		if rain != nil {
-			rainStr = fmt.Sprintf("%4.1fmm", *rain)
+			rainStr = fmt.Sprintf("%.1fmm", *rain)
 		}
 
-		humidityStr := "N/A     "
+		humidityStr := "N/A"
 		if humidity != nil {
-			humidityStr = fmt.Sprintf("%6.0f%%", *humidity)
+			humidityStr = fmt.Sprintf("%.0f%%", *humidity)
 		}
 
-		pressureStr := "N/A     "
+		pressureStr := "N/A"
 		if pressure != nil {
-			pressureStr = fmt.Sprintf("%6.0fhPa", *pressure)
+			pressureStr = fmt.Sprintf("%.0fhPa", *pressure)
 		}
 
-		visStr := "N/A       "
+		visStr := "N/A"
 		if vis != nil {
-			visStr = fmt.Sprintf("%7.1fkm", *vis)
+			visStr = fmt.Sprintf("%.1fkm", *vis)
 		}
 
-		fmt.Printf("│ %s │ %s │ %s │ %s │ %s │ %s │ %s │ %s │ %-15s   │\n",
-			t.Format("15:04"), tempStr, feelsLikeStr, windStr, rainStr, humidityStr, pressureStr, visStr, condText[cond])
+		fmt.Printf("│ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %s │\n",
+			timeWidth, t.Format("15:04"),
+			tempWidth, tempStr,
+			feelsLikeWidth, feelsLikeStr,
+			windWidth, windStr,
+			rainWidth, rainStr,
+			humidityWidth, humidityStr,
+			pressureWidth, pressureStr,
+			visibilityWidth, visStr,
+			condText[cond])
 	}
-	fmt.Println("└───────┴───────┴────────────┴───────────┴────────┴──────────┴──────────┴────────────┴──────────────────┘")
+	fmt.Println("└───────┴───────┴────────────┴────────────┴────────┴──────────┴──────────┴────────────┴───────────────────┘")
 }
