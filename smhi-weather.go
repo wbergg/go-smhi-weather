@@ -7,7 +7,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -307,55 +306,55 @@ func main() {
 	icon := getWeatherIcon(condition)
 
 	// Print current weather with icon
+	const (
+		leftColWidth  = 29 // Left column width (for date/icon)
+		rightColWidth = 29 // Right column width (for data)
+	)
+
 	fmt.Printf("┌─────────────────────────────┬─────────────────────────────┐\n")
-	fmt.Printf("│ %s │", validTime.Format("Mon 02 Jan 15:04"))
-	fmt.Printf("%s│\n", strings.Repeat(" ", 28-len(validTime.Format("Mon 02 Jan 15:04"))))
+	dateStr := validTime.Format("Mon 02 Jan 15:04")
+	fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, dateStr, rightColWidth-2, "")
 
 	for i, line := range icon {
 		if i == 0 {
-			fmt.Printf("│%s", line)
 			if temp != nil {
 				tempStr := fmt.Sprintf("%.1f°C", *temp)
-				fmt.Printf("│ Temperature:  %s", tempStr)
-				fmt.Printf("%s│\n", strings.Repeat(" ", 14-len(tempStr)))
+				dataStr := fmt.Sprintf("Temperature:  %s", tempStr)
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, dataStr)
 			} else {
-				fmt.Printf("│ Temperature:  N/A           │\n")
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, "Temperature:  N/A")
 			}
 		} else if i == 1 {
-			fmt.Printf("│%s", line)
 			if windSpeed != nil && windDir != nil {
 				windStr := fmt.Sprintf("%.1f m/s %s", *windSpeed, getWindDirection(*windDir))
-				fmt.Printf("│ Wind:         %s", windStr)
-				fmt.Printf("%s│\n", strings.Repeat(" ", 14-len(windStr)))
+				dataStr := fmt.Sprintf("Wind:         %s", windStr)
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, dataStr)
 			} else {
-				fmt.Printf("│ Wind:         N/A           │\n")
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, "Wind:         N/A")
 			}
 		} else if i == 2 {
-			fmt.Printf("│%s", line)
 			if humidity != nil {
 				humStr := fmt.Sprintf("%.0f%%", *humidity)
-				fmt.Printf("│ Humidity:     %s", humStr)
-				fmt.Printf("%s│\n", strings.Repeat(" ", 14-len(humStr)))
+				dataStr := fmt.Sprintf("Humidity:     %s", humStr)
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, dataStr)
 			} else {
-				fmt.Printf("│ Humidity:     N/A           │\n")
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, "Humidity:     N/A")
 			}
 		} else if i == 3 {
-			fmt.Printf("│%s", line)
 			if pressure != nil {
 				presStr := fmt.Sprintf("%.0f hPa", *pressure)
-				fmt.Printf("│ Pressure:     %s", presStr)
-				fmt.Printf("%s│\n", strings.Repeat(" ", 14-len(presStr)))
+				dataStr := fmt.Sprintf("Pressure:     %s", presStr)
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, dataStr)
 			} else {
-				fmt.Printf("│ Pressure:     N/A           │\n")
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, "Pressure:     N/A")
 			}
 		} else if i == 4 {
-			fmt.Printf("│%s", line)
 			if visibility != nil {
 				visStr := fmt.Sprintf("%.1f km", *visibility)
-				fmt.Printf("│ Visibility:   %s", visStr)
-				fmt.Printf("%s│\n", strings.Repeat(" ", 14-len(visStr)))
+				dataStr := fmt.Sprintf("Visibility:   %s", visStr)
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, dataStr)
 			} else {
-				fmt.Printf("│ Visibility:   N/A           │\n")
+				fmt.Printf("| %-*s | %-*s |\n", leftColWidth-2, line, rightColWidth-2, "Visibility:   N/A")
 			}
 		}
 	}
@@ -363,7 +362,7 @@ func main() {
 
 	// Print hourly forecast
 	fmt.Println("\n┌────────────────────────────────────────────── Hourly Forecast ──────────────────────────────────────────┐")
-	fmt.Println("│ Time  │  Temp │ Feels like │   Wind     │  Rain  │ Humidity │ Pressure │ Visibility │ Condition         │")
+	fmt.Println("| Time  |  Temp | Feels like |   Wind     |  Rain  | Humidity | Pressure | Visibility | Condition         |")
 	fmt.Println("├───────┼───────┼────────────┼────────────┼────────┼──────────┼──────────┼────────────┼───────────────────┤")
 
 	// Show next 12 hours
@@ -459,7 +458,7 @@ func main() {
 			visStr = fmt.Sprintf("%.1fkm", *vis)
 		}
 
-		fmt.Printf("│ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %*s │ %s │\n",
+		fmt.Printf("| %*s | %*s | %*s | %*s | %*s | %*s | %*s | %*s | %s |\n",
 			timeWidth, t.Format("15:04"),
 			tempWidth, tempStr,
 			feelsLikeWidth, feelsLikeStr,
@@ -471,4 +470,5 @@ func main() {
 			condText[cond])
 	}
 	fmt.Println("└───────┴───────┴────────────┴────────────┴────────┴──────────┴──────────┴────────────┴───────────────────┘")
+
 }
